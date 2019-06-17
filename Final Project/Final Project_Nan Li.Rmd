@@ -1,0 +1,76 @@
+---
+title: "**Final Report**"
+author: "Nan Li"
+date: "June 16, 2019"
+output:
+  pdf_document: 
+  html_document:
+    css: faded.css
+---
+## Introduction
+
+The `gapminder` data set includes 6 major variables that describes life expentency depending upon factors such as region, population, GDP, and some others. Below are the major variables: 
+
+
+* life: life expectancy
+* income: GDP per capita
+* year:  from 1800 to 2015
+* county: different countries 
+* region: 6 regions across the globe
+* population: collected about every 10 years
+
+## TWO major questions that I seek to answer:
+1. What is the difference in GDP numbers across various regions? And what are the rankings? 
+2. How is the relationship between GDP and life expectancy?
+
+ 
+## Data summary
+```{r, echo = FALSE, message=FALSE, results="hide", warning=FALSE}
+library(readr)
+library(tidyverse)
+library(dplyr)
+rm(list = ls())
+myData <- read.csv("file:///C:/Users/nanl/Desktop/HW/ANLY506/gapminder.csv", header=TRUE)
+head(myData)
+tail(myData) 
+names(myData)
+summary(myData)
+nObs = nrow(myData)
+nVars = ncol(myData)
+year2015 <- filter(myData, Year == 2015)
+```
+
+1. There are `r nObs` observations. 
+2. Thee are `r nVars` variables. 
+3. Type of variables: "Country" is `r class(myData$Country)`, "Year" is `r class(myData$Year)`, "life" is `r class(myData$life)`, "population" is `r class(myData$population)`, "income" is `r class(myData$income)` and "region" is `r class(myData$region)`.
+4. How disperse is the data: Range of "Year" is `r range(myData$Year)`. 
+5. Missing values: in the data file, there are some missing values about population data. I used fill method and removed the rows with empty GDP values. I also converted the type of populationdatafrom factor to numeric, so that those data are easier to deal with. 
+
+```{r, echo = FALSE, message=FALSE, results="hide", warning=FALSE}
+gm = filter(myData, !is.na(myData$income))
+class(gm$population)
+gm$population = as.numeric(as.character(gm$population))
+class(gm$population)
+gm <- gm %>% fill(population)
+```
+
+## Plot for Question_1
+```{r, echo = FALSE, message=FALSE, results="hide", warning=FALSE}
+ggplot(gm, aes(region, income, color = region)) + geom_boxplot() + labs(title="GDP across regions", y = "GDP/Income", x = "Regions")
+```
+
+
+## Plot for Question_2
+```{r, echo = FALSE, message=FALSE, results="hide", warning=FALSE}
+ggplot(data = gm, mapping = aes(x = income, y = life, color = region)) +
+  geom_point(alpha = 0.6) +
+  scale_x_log10()+
+  scale_color_manual(values = c("green","purple", "red","blue","orange","yellow")) + 
+  labs(title="Relationship between GDP #s and Life Expenctancy", y = "Life Expectancy", x = "GDP/Income")
+```
+
+
+## Answers to the TWO questions:
+1. From Figure. 1, we can clearly see that GDP numbers are different across different regions. And the ranking are as following: No.1 Europe & Central Asia; No.2 East Asia & Pacific; No.3 Europe & Central Asia; No.4 America; No.5 Sub-Saharan Africa; No.6 South Asia.
+2. From Figure. 2, we can tell a positive relationship between GDP and life expectancy. For example, region Middle East & North Africa has high GDP/outincome, and they also have high life expectancy (average is in the >60 range)
+
